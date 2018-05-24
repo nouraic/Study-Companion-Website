@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Study Companion</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/4.11.0/firebase.js"></script>
+  <script src="firebaseconfig.js"></script>
+  <script src="functions.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Heebo:100" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+</head>
+<body>
+
+    <!-- HEADER -->
+    <ul>
+      <li><a class="title">Study Companion</a></li>
+      <li style="float:right"><button class="logout" onclick="logout()">Logout</button></li>
+    </ul>
+
+    <div class="main">
+        <!-- LEFT SIDE NAV BAR -->
+        <div class="leftSideNav">
+            <p class="menu">TOOLS</p>
+            <button class="leftSideNavButtons" onclick="window.location.replace('index.html')">HOME</button>
+            <button class="active leftSideNavButtons" onclick="window.location.replace('courseOverview.html')">COURSE OVERVIEW</button>
+            <button class="leftSideNavButtons" onclick="window.location.replace('accountManagement.html')">MANAGE ACCOUNT</button>
+        </div>
+        
+        <div class=tabs>
+            <button class="backButton" onclick="window.location.replace('courseOverview.html')">⬅</button>
+            <button class="tabButton tabButtonActive" onclick="window.location.replace('courseForum.html')">Forum</button>
+            <button class="tabButton" onclick="window.location.replace('courseStudyGroups.html')">Study Groups</button> 
+            <button class="tabButton" onclick="window.location.replace('courseClassmates.html')">Classmates Online</button>
+        </div>
+        
+        <!-- ADD CONTENT OF THIS PAGE HERE -->
+        <div class="rightSideContent">
+            <h1 id="forumHeader"></h1>
+			
+			<!--Form to submit a new post to the forum -->
+			<div class="col-6">
+				<input class=col-6-textBoxSubject type="text" id="subject" placeholder="Subject">
+				<input class=col-6-textBoxQuestion type="text" id="question" placeholder="Question">
+				<button class="createForumPostButton makewhite" onclick="postQuestion()">Create Post</button>
+                <br/><br/>
+			</div>
+
+			<!--Holds all of the forum posts -->
+			<div class="forum">
+			<div class="col-6 " id="forumContainer"></div>
+			</div>
+			
+        </div>
+    </div>
+    
+    <script>
+		var TIME_STAMP = 2;
+		var POST_ID = 1;
+	
+        var currentCourseID = sessionStorage.getItem("currentCourseID");
+        var currentCourseName = sessionStorage.getItem("currentCourseName");
+		var currentUserID = sessionStorage.getItem("UID");	     //the string of the uid
+		var currentUserName = sessionStorage.getItem("UserName"); 
+        		
+        // forum header
+        var forumHeader = document.getElementById("forumHeader");
+        forumHeader.innerHTML = currentCourseName + "'s Forum";
+		
+		//container to place the forum posts
+		var forumContainer = document.getElementById("forumContainer");
+		var forumSubject = document.getElementById("subject");
+        var forumQuestion = document.getElementById("question");
+		loadPosts();
+		
+		//loads all of the courses to display into the page
+		function loadPosts() {
+			//clearForum();
+            //forumContainer.innerHTML="";
+			//console.log("Loading Posts");
+			var drefGetCoursePosts = firebase.database().ref('Courses/' + currentCourseID + '/Forum');
+			drefGetCoursePosts.on('value', function(snapshot) {
+                forumContainer.innerHTML = "";
+				snapshot.forEach(function(childSnapshot) {
+					//container for this post
+					var container = document.createElement('div');
+					var spaceDiv = document.createElement('BR');
+					
+					var timeStamp = childSnapshot.val()["Time Stamp"];
+					var postID = childSnapshot.val()["Post ID"];
+					var authorName;
+					var subject = childSnapshot.val().Subject;
+					console.log("Subject- "+subject);
+					var question = childSnapshot.val().Question;
+										
+					var res = subject.split(" ⇊ ");	//split the subject and the users name 
+					subject = res[0];	
+					authorName = res[1];
+					
+					//timeStampNode = document.createTextNode(timeStamp);
+                    // create elements for each part of post
+					var nameNode = document.createTextNode(authorName);
+					var spacer = document.createElement("BR");
+					var subjectNode = document.createTextNode("Subject: "+subject);
+					var questionNode = document.createTextNode("Question: "+question);
+					var repliesNode = document.createTextNode("Replies: ");
+					var replyField = document.createElement("INPUT");
+					var replyButton = document.createElement("BUTTON");
+					replyField.setAttribute("id", postID);
+                    replyField.className = "inputBox";
+					replyButton.innerHTML = "Reply";
+					replyButton.setAttribute("name", postID);
+                    replyButton.className = "replybox";
+					replyButton.setAttribute("onclick", "replyToPost(this.name)");
+					
+					var replies = loadReplies(postID);
+					
+                    // append all elements
+					//container.appendChild(timeStampNode);
+					container.appendChild(nameNode);
+					container.appendChild(document.createElement("BR"));
+					container.appendChild(subjectNode);
+					container.appendChild(document.createElement("BR"));
+					container.appendChild(questionNode);
+					container.appendChild(document.createElement("BR"));
+					container.appendChild(repliesNode);
+					container.appendChild(document.createElement("BR"));
+					container.appendChild(replies);
+					container.appendChild(replyField);
+					container.appendChild(replyButton);
+					
+					container.className = "rcorners1";
+					
+					forumContainer.appendChild(container);
+					forumContainer.appendChild(spaceDiv);
+				});
+			});
+		}
+		
+        // load the replies
+		function loadReplies(postID) {
+			//element to return 
+			//clearForum();
+            //forumContainer.innerHTML="";
+			var repliesContainer = document.createElement("div");
+			
+            // for each reply add it to div
+			var drefGetCoursePosts = firebase.database().ref('Courses/' + currentCourseID + '/Forum/'+postID+"/Replies");
+			drefGetCoursePosts.on('value', function(snapshot) {
+				snapshot.forEach(function(childSnapshot) {
+					var reply = childSnapshot.val();
+					var replyContainer = document.createTextNode(reply);
+					repliesContainer.appendChild(document.createElement("BR"));
+					repliesContainer.appendChild(replyContainer);
+                    repliesContainer.className="makewhite";
+				});
+			});
+			
+			return repliesContainer;
+		}
+		
+        // go through and show all replies to post
+		function replyToPost(postID) {
+			console.log("Replying to post");
+			var replyField = document.getElementById(postID);
+			var reply = replyField.value;
+			var replyID = getTime(POST_ID);
+			console.log("Reply ID: "+replyID);
+			
+			
+			if( reply.length > 0) {
+				firebase.database().ref('Courses/'+currentCourseID+'/Forum/'+postID+"/Replies").update({
+				[replyID] : (currentUserName+": "+reply)
+			});
+			}
+			loadPosts();
+		}
+		
+		//function to get the form fields and to check that they are valid and call makePost 
+		//to put the post into firebase. 
+		function postQuestion() {
+			console.log("Creating Post");
+			
+			//get the strings of the post form
+			var subjectText = document.getElementById("subject").value;
+			var questionText = document.getElementById("question").value;
+			
+			if ( questionFieldsValid(subjectText, questionText) ) {	//fields aren't blank
+				console.log("Valid Question");
+				
+				makePost(subjectText, questionText);
+			}
+		}
+		
+		//function to put the post into firebase
+		function makePost(subjectText, questionText){
+			console.log("Creating a post");
+			//clearForum();
+            //forumContainer.innerHTML = "";
+            forumQuestion.value = "";
+            forumSubject.value = "";
+		
+			var postID = getTime(POST_ID);
+			var timeStamp = getTime(TIME_STAMP);
+			var author = currentUserID;
+			var Post_ID = "Post ID";
+			var Time_Stamp = "Time Stamp";
+			
+			console.log("AUTHOR: "+author);
+			console.log("User Name"+currentUserName);
+            
+            // put post into firebase
+			firebase.database().ref('Courses/'+currentCourseID+'/Forum/'+postID).set({
+				Author : author,
+				[Post_ID] : postID,
+				Question : questionText,
+				Reports : 0+"",
+				Subject : (subjectText +" ⇊ "+currentUserName),
+				[Time_Stamp] : timeStamp
+			});
+			
+			
+		}
+		
+		//clear the forum container to prevent duplicate posts when creating a new post
+		function clearForum() {
+			while(forumContainer.firstChild) {
+				forumContainer.removeChild(forumContainer.firstChild);
+			}
+		}
+		
+		//Format Value of 1 is for a Post ID
+		//Format Value of 2 is for a Time Stamp
+        // gets the local time
+		function getTime(format) {
+			var today = new Date();
+			var dd = today.getDate();
+
+			var MM = today.getMonth()+1; 
+			var yy = today.getFullYear().toString().substr(-2);
+			
+			var ss = today.getSeconds();
+			var mm = today.getMinutes();
+			var hh = today.getHours();
+			var AM_PM;
+			
+			if(hh >= 12){
+				AM_PM = "PM";
+			}
+			else {
+				AM_PM = "AM";
+			}
+				
+			if(dd<10) {
+				dd='0'+dd;
+			} 
+
+			if(mm<10) {
+				mm='0'+mm;
+			} 
+			if(MM<10) {
+				MM='0'+MM;
+			} 
+			if(ss<10) {
+				ss='0'+ss;
+			}
+			
+			if(format == POST_ID){
+				return today = yy+':'+MM+':'+dd+' '+hh+':'+mm+':'+ss;
+			}
+			else if(format == TIME_STAMP){
+				hh = hh % 12;
+				if(hh<10) {
+					hh='0'+hh;
+				} 
+				return today = MM+'/'+dd+'/'+yy+' '+hh+':'+mm+' '+AM_PM;
+			}
+		}
+		
+        // checks if fields are valid
+		function questionFieldsValid(subject, question){
+			var subjVal = false;
+			var quesVal = false;
+		
+			if ( subject.length < 1 ) {	//subject has nothing in it
+				//do something 
+			}
+			else {
+				subjVal = true;
+			}
+			
+			if( question.length < 1 ) { //question has nothing in it
+				//do something
+			}
+			else {
+				quesVal = true;
+			}
+			
+			return (quesVal && subjVal);
+		}
+		
+    </script>
+    
+</body>
+</html>

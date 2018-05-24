@@ -1,0 +1,1017 @@
+@media only screen and (min-device-width: 769px) {
+    
+* {
+    font-family: Heebo, sans-serif;
+    outline: none;
+    color: black;
+    overflow: hidden;
+}
+
+/* STUDY COMPANION HEADER */
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow:hidden;
+    background-color: dodgerblue;
+}
+    
+/* LOGOUT BUTTON */
+li {
+    float: left;
+}
+
+/* LOGOUT BUTTON */
+li a {
+    font-size: 2em;
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+/* LOGOUT BUTTON */
+li button {
+    background-color: transparent;
+    color: white;
+    border: solid .5px white;
+    height: 2em;
+    width: 5em;
+    text-align: center;
+    font-size: 2.5em;
+}
+
+.title {
+    font-size: 4em;
+}
+
+.title:hover {
+    text-decoration: none;
+    color: white;
+}
+
+.main {
+    position: fixed;
+    background-color: white;
+    height: 100%;
+    width: 100%;
+}
+
+/* LEFT SIDE OF NAV BAR */
+.leftSideNav{ 
+    float: left;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1;
+    width: 13%;
+    height: 100%;
+}
+
+/* LEFT SIDE OF NAV BAR BUTTONS*/
+.leftSideNavButtons {
+    display: block;
+    background-color: inherit;
+    color: black;
+    padding: .5vw 1vw;
+    height: 5em;
+    width: 100%;
+    border: none;
+    outline: none;
+    text-align: left;
+    cursor: pointer;
+    transition: 0.3s;
+    vertical-align: top;
+    margin: 0;
+    font-size: 1.3em;
+}
+
+/* ACTIVE BUTTON STYLING */
+.active {
+    background-color: dodgerblue;
+    border: none;
+    outline: none;
+    color: white;
+}
+
+.menu {
+    font-size: 1.5em;
+    padding: 1.5vw 1vw;
+}
+
+/* ALL CONTENT ON RIGHT OF TAB BUTTONS */
+.rightSideContent {
+    position: fixed;
+    margin-left: 15vw;
+    height: 100%;
+    width: 85%;
+    border-top: .5em solid white;
+}
+
+#usersCoursesButtonsDiv {
+    text-align: center;
+    display: block;
+    position: relative;
+    margin-left: auto;
+    margin-right: auto;
+    height: 38vw;
+    overflow: auto;
+}
+
+.courseButton {
+    height: 6vw;
+    width: 25vw;
+    background-color: dodgerblue;
+    color: white;
+    margin-bottom: 2vw;
+    font-size: 1.5em;
+}
+
+.logout {
+    padding-top: auto;
+    padding-bottom: auto;
+    margin-top: .6em;
+    border: solid 2px lightblue;
+    margin-right: 1em;
+}
+
+.logout:hover {
+    text-decoration: none;
+    color: white;
+    background: darkblue;
+}
+
+#studyGroupsDiv, #classmatesDiv {
+    height: 35vw;
+    overflow-y: auto;
+}
+
+#classmatesDiv {
+    height: 38vw;
+}
+
+h1 {
+    font-size: 2.5em;
+}
+
+#createHeader {
+    font-size: 1.5em;
+}
+
+h2 {
+    font-size: 1em;
+}
+
+#createStudyGroup {
+    height: 3vw;
+    width: 80%;
+    border: none;
+    background-color: dodgerblue;
+    color: white;
+    font-size: 1.5em;
+}
+
+.makesmall {
+    width: 10vw;
+    height: 3vw;
+    font-size: 1em;
+}
+
+.rcorners1 {
+    border-radius: 25px;
+    background: dodgerblue;
+    padding: 20px; 
+    width: 90%;
+    overflow: auto;
+    color: white;
+    font-size: 1.5em;
+}
+
+.tabs {
+    background-color: dodgerblue;
+    height: 4vw;
+    border: solid .1vw dodgerblue;
+}
+
+.tabButton, .backButton {
+    position: relative;
+    width: 27.3%;
+    height: 3.8vw;
+    background-color: white;
+    font-size: 2vw;
+    border: none;
+    color: dodgerblue;
+}
+
+.backButton {
+    width: 4vw;
+}
+
+.tabButtonActive {
+    background-color: darkblue;
+    border-color: black;
+    color: white;
+}
+
+#onlineToggleButton {
+    position: absolute;
+    margin-left: 35em;
+    margin-top: -3.8em;
+}
+
+#onlineToggleLabel {
+    position: absolute;
+    margin-left: 20em;
+    margin-top: -2em;
+    font-size: 2em;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.switch input {display:none;}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+#singleClassmateDiv {
+    width: 100%;
+    height: 7em;
+    display: inline-block;
+}
+
+#contactImg {
+    height: 5em;
+    width: 5em;
+}
+
+.nameDiv {
+    display: inline-block;
+    width: 40%;
+}
+
+.classmateName {
+    position: static;
+    font-size: 2em;
+    
+}
+
+.emailButton {
+    float: right;
+    height: 3em;
+    width: 15em;
+    margin-top: 1em;
+    background-color: dodgerblue;
+    color: white;
+}
+
+/* LOADING SPINNER */
+.loader {
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 120px;
+  height: 120px;
+  -webkit-animation: spin 2s linear infinite; /* Safari */
+  animation: spin 2s linear infinite;
+}
+    
+/* Safari */
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+#studyGroupsDiv {
+    width: 80%;
+}
+
+.sgButton {
+    height: 2em;
+    width: 6em;
+    background-color: white;
+    color: black;
+    border: none;
+    margin-left: 1vw;
+    border: .1vw solid black;
+}
+
+.studyGroupDiv h2 {
+    font-size: 1.5em;
+    margin-left: 2vw;
+}
+
+.studyGroupDiv h1 {
+    margin-left: 2vw;
+}
+
+.studyGroupDiv {
+    border-radius: 1.5vw;
+    background-color: dodgerblue;
+    color: white;
+}
+
+#forumHeader {
+    width: 80%;
+}
+
+.box {
+    width: 50%;
+    padding: 2vw, 2vw;
+    height: 2.5em;
+}
+
+.pad {
+    padding-left: 1vw;
+}
+
+.createStudyGroupNavButton {
+    background-color: dodgerblue;
+    border: none;
+    color: white;
+    height: 2em;
+    width: 10em;
+}
+
+#createStudyGroupDiv {
+    font-size: 2em;
+}
+
+
+/* add course */
+#coursesDiv {
+    height: 30vw;
+    width: 90%;
+    border: 1px solid dodgerblue;
+    overflow: auto;
+}
+
+#courseDiv {
+    display: inline;
+}
+
+#courseDiv text1 {
+    font-size: 2vw;
+    position: relative;
+}
+
+/* SEARCH/ADD COURSE */
+#searchbar {
+    border: .1em solid dodgerblue;
+    border-radius: 4em;
+    font-size: 1.5em;
+    width: 80%;
+    padding: .5vw;
+    padding-left: 2vw;
+}
+
+.searchButton, .addCourseButton {
+    background-color: dodgerblue;
+    width: 15%;
+    height: 3vw;
+    color: white;
+}
+
+.addCourseButton {
+    display: block;
+    position: relative;
+    margin-left: auto;
+    margin-right: auto;
+    width: 20%;
+}
+
+h9 {
+    font-size: 2em;
+}
+
+.col-6-textBoxQuestion, .col-6-textBoxSubject {
+    font-size: 1.5em;
+    padding: .5vw .5vw;
+    width: 60%;
+}
+
+.col-6-textBoxSubject {
+    width: 20%;
+}   
+
+.replybox, .inputBox {
+    color: black;
+}
+
+.inputBox {
+    padding: .5vw .5vw;
+    height: 2vw;
+    font: .5em;
+}
+
+.makewhite {
+    color: white;
+}
+
+.createForumPostButton {
+    background-color: dodgerblue;
+    height: 3em;
+    width: 10%;
+}
+
+#forumContainer {
+    overflow: auto;
+    height: 35vw;
+}
+
+
+#intro {
+    height: 100%;
+    text-align: center;   
+}
+
+#intro article {
+    font-size: 3em;
+    margin-top: 2em;
+    padding-bottom: 1em;
+}
+
+#intro p {
+    font-size: 2em;    
+}
+.accountCreater{
+    font-size: 2em;
+    text-align: center;
+}
+}
+@media only screen and (max-device-width: 768px) {          /*******************************************************************************/
+* {
+    font-family: Heebo, sans-serif;
+    /*font-family: 'Muli', sans-serif;*/
+    outline: none;
+    color: black;
+}
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: dodgerblue;
+}
+
+
+li {
+    float: left;
+}
+
+li a {
+    font-size: 2em;
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+li button {
+    background-color: transparent;
+    color: white;
+    border: solid .5px white;
+    height: 2em;
+    width: 5em;
+    text-align: center;
+    font-size: 2.5em;
+}
+
+.title {
+    font-size: 2em;
+}
+
+.title:hover {
+    text-decoration: none;
+    color: white;
+}
+
+.main {
+    position: fixed;
+    background-color: white;
+    height: 100%;
+    width: 100%;
+}
+
+.leftSideNav{ 
+    float: left;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1;
+    width: 16%;
+    height: 100%;
+}
+
+.leftSideNavButtons {
+    display: block;
+    background-color: inherit;
+    color: black;
+    padding: 1vw;
+    height: 5em;
+    width: 100%;
+    height: 10%;
+    font-weight: bold;
+    border: none;
+    outline: none;
+    text-align: left;
+    cursor: pointer;
+    transition: 0.3s;
+    vertical-align: top;
+    margin: 0;
+    font-size: .65em;
+}
+
+#myCTitle{
+}
+
+
+.active {
+    background-color: dodgerblue;
+    border: none;
+    outline: none;
+    color: white;
+}
+
+
+.menu {
+    font-size: 1.1em;
+    font-weight: bold;
+    padding: 1.5vw 1vw;
+    border-bottom: solid 1px black;
+}
+
+.rightSideContent {
+    text-align: center;
+    height: 100%;
+    width: 85%;
+    border-top: .5em solid white;
+}
+
+#usersCoursesButtonsDiv {
+    text-align: center;
+    display: block;
+    position: relative;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 3vw;
+    height: 38vw;
+    overflow: auto;
+}
+
+.courseButton {
+    height: auto;
+    width: 50vw;
+    background-color: dodgerblue;
+    color: white;
+    margin-bottom: 2vw;
+    font-size: 1.5em;
+}
+
+
+.logout {
+    padding-top: auto;
+    padding-bottom: auto;
+    margin-top: .6em;
+    font-size: 1.5em;
+    border: solid 1px lightblue;
+    margin-right: .5em;
+}
+
+.logout:hover {
+    text-decoration: none;
+    color: white;
+    background: darkblue;
+}
+
+#studyGroupsDiv, #classmatesDiv {
+    height: 35vw;
+    overflow-y: auto;
+}
+
+#classmatesDiv {
+    height: 75%;
+    font-size: .40em;
+}
+
+h1 {
+    font-size: 2.5em;
+}
+
+#createHeader {
+    font-size: 1.5em;
+}
+
+h2 {
+    font-size: 1em;
+}
+
+#createStudyGroup {
+    height: 5vw;
+    width: 50%;
+    border: none;
+    margin-left: 15%;
+    background-color: dodgerblue;
+    color: white;
+    font-size: 1em;
+}
+
+.makesmall {
+    width: 10vw;
+    height: 3vw;
+    font-size: 1em;
+}
+
+.rcorners1 {
+    border-radius: 25px;
+    background: dodgerblue;
+    padding: 20px; 
+    width: 90%;
+    overflow: auto;
+    color: white;
+    font-size: 1.5em;
+}
+
+.tabs {
+    background-color: dodgerblue;
+    height: 4vw;
+    border: solid .1vw dodgerblue;
+}
+
+.tabButton, .backButton {
+    background-color: white;
+    font-size: 2vw;
+    border: none;
+    color: dodgerblue;
+}
+.tabButton{
+    font-size: 3vw;
+}
+
+#addCC{
+    position: fixed;
+    top: 100px;
+    left: 70px;
+    width: 70%;
+    
+}
+
+.backButton {
+    margin: 5vw;
+    margin-left: 1vw;
+    width: 5vw;
+}
+
+.tabButtonActive {
+    background-color: darkblue;
+    border-color: black;
+    color: white;
+}
+
+#onlineToggleButton {
+    position: absolute;
+    margin-left: 35em;
+    margin-top: -3.8em;
+}
+
+#onlineToggleLabel {
+    position: absolute;
+    margin-left: 20em;
+    margin-top: -2em;
+    font-size: 2em;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.switch input {display:none;}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+#singleClassmateDiv {
+    width: 100%;
+    height: 7em;
+    margin-bottom: 15px;
+    display: inline-block;
+}
+
+#contactImg {
+    height: 5em;
+    width: 5em;
+}
+
+.nameDiv {
+    display: inline-block;
+    width: 40%;
+}
+
+.classmateName {
+    position: static;
+    font-size: 2em;
+    
+}
+
+.emailButton {
+    float: right;
+    height: 3em;
+    width: 15em;
+    margin-top: 1em;
+    background-color: dodgerblue;
+    color: white;
+}
+
+.loader {
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 120px;
+  height: 120px;
+  -webkit-animation: spin 2s linear infinite; /* Safari */
+  animation: spin 2s linear infinite;
+}
+
+/* Safari */
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+#studyGroupsDiv {
+    width: 80%;
+    height: auto;
+    font-size: 1em;
+    margin-left: 35%;
+}
+
+.sgButton {
+    height: 2em;
+    width: 6em;
+    background-color: white;
+    color: black;
+    border: none;
+    margin-left: 1vw;
+    border: .1vw solid black;
+}
+
+.studyGroupDiv h2 {
+    font-size: 1.5em;
+    margin-left: 2vw;
+}
+
+.studyGroupDiv h1 {
+    margin-left: 2vw;
+}
+
+.studyGroupDiv {
+    border-radius: 1.5vw;
+    background-color: dodgerblue;
+    color: white;
+}
+
+#forumHeader {
+    width: 80%;
+    font-size: 5vw;
+    margin-left: 25%;
+    margin-right: 25%;
+}    
+    
+.box {
+    width: 50%;
+    padding: 2vw, 2vw;
+    height: 2.5em;
+}
+
+.pad {
+    padding-left: 1vw;
+}
+
+.createStudyGroupNavButton {
+    background-color: dodgerblue;
+    border: none;
+    color: white;
+    height: 2em;
+    width: 10em;
+}
+
+#createStudyGroupDiv {
+    font-size: .75em;
+    text-align: center;
+}
+
+
+/* add course */
+#coursesDiv {
+    height: 30vw;
+    width: 90%;
+    border: 1px solid dodgerblue;
+    overflow: auto;
+}
+
+#courseDiv {
+    display: inline;
+}
+
+#courseDiv text1 {
+    font-size: 2vw;
+    position: relative;
+}
+
+/* SEARCH/ADD COURSE */
+#searchbar {
+    border: .1em solid dodgerblue;
+    border-radius: 4em;
+    font-size: 1.5em;
+    width: 80%;
+    padding: .5vw;
+    padding-left: 2vw;
+}
+
+.searchButton, .addCourseButton {
+    background-color: dodgerblue;
+    width: 30%;
+    height: 5vw;
+    color: white;
+}
+
+.addCourseButton {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    height: 10vw;
+    width: 30%;
+}
+
+h9 {
+    font-size: 2em;
+}
+
+.col-6-textBoxQuestion, .col-6-textBoxSubject {
+    font-size: 1em;
+    padding: .5vw .5vw;
+    display: block;
+    text-align: center;
+    width: 60%;
+}
+
+.col-6-textBoxSubject {
+    width: 25%;
+    margin-left: auto;
+    margin-right: auto;
+}
+.col-6-textBoxQuestion{
+    margin-left: auto;
+    margin-right: auto;
+}   
+    
+.replybox, .inputBox {
+    color: black;
+}
+
+.inputBox {
+    padding: .5vw .5vw;
+    height: 2vw;
+    font: .5em;
+}
+
+.makewhite {
+    color: white;
+}
+
+.createForumPostButton {
+    background-color: dodgerblue;
+    height: 3em;
+    width: 30%;
+}
+
+#forumContainer {
+    overflow: auto;
+    height: 75%;
+}
+
+
+#intro {
+    height: 100%;
+    text-align: center; 
+}
+
+#intro article {
+    font-size: 2em;
+    margin-top: 1em;
+    padding-bottom: .5em;
+}
+
+#intro p {
+    font-size: 1em;    
+}
+
+.accountCreater{
+    font-size: 3em;
+    text-align: center;
+}
+}

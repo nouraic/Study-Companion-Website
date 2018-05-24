@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+
+<!-- 
+This document holds the account management functionality of the website. Here the user can change their password as well as delete their account entirely
+-->
+
+<html lang="en">
+    <head>
+        <title>Study Companion</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/4.11.0/firebase.js"></script>
+        <script src="firebaseconfig.js"></script>
+        <script src="functions.js"></script>
+        <link href="https://fonts.googleapis.com/css?family=Heebo:100" rel="stylesheet">
+        <link rel="stylesheet" href="style.css">
+        <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+
+    </head>
+    <body>
+
+        <!-- HEADER -->
+        <ul>
+            <li><a class="title">Study Companion</a></li>
+            <li style="float:right"><button class="logout" onclick="logout()">Logout</button></li>
+        </ul>
+
+        <div class="main">
+            <!-- LEFT SIDE NAV BAR -->
+            <div class="leftSideNav">
+                <p class="menu">TOOLS</p>
+                <button class="leftSideNavButtons" onclick="window.location.replace('index.html')">HOME</button>
+                <button class="leftSideNavButtons" onclick="window.location.replace('courseOverview.html')">COURSE OVERVIEW</button>
+                <button class="active leftSideNavButtons" onclick="window.location.replace('accountManagement.html')">MANAGE ACCOUNT</button>
+            </div>
+
+            <div class="rightSideContent"> <!-- holds the account management section -->
+                <div id="changeP"> <!-- holds the password change content -->
+                    <h3>Change Password</h3>
+                    <div>Enter New Password</div>
+                    <input type="password" id="oldP" placeholder="Old Password">
+                    <br>
+                    <input type="password" id="newP" placeholder="New Password(Tab)"> <br>(5 Characters & A Number)
+                    <br>
+                    <br>
+                    <button id="submit" disabled>Submit</button>
+                    <div class="checker" id="isValid"></div>
+                </div> 
+                <div id="deleteA"> <!-- holds the account deletion content -->
+                    <h3>Delete Account</h3>
+                    <div>Enter Password</div>
+                    <input type="password" id="pass" placeholder="Password(Then Tab)"><br>(5 Characters & A Number)
+                    <br>
+                    <br>
+                    <button id="submit2" disabled>Submit</button>
+                    <div class="checker" id="isValid2"></div>
+                </div>
+
+            </div>
+        </div>
+
+        <script>
+            // this function checks to see if the password entered is indeed the users current password
+            function checkPassword(user, cOd)
+            { // cOd = Change Or Delete
+                var thePassword = null;
+                var submitButton = "";
+                var theChecker = "";
+                if (cOd === 0) // changing password
+                {
+                    thePassword = oldPass;
+                    submitButton = "submit";
+                    theChecker = "isValid";
+                } else // deleting account
+                {
+                    thePassword = delPass;
+                    submitButton = "submit2";
+                    theChecker = "isValid2";
+                }
+                user.reauthenticateWithCredential(firebase.auth.EmailAuthProvider // sign the user in with the password provided and see if it works
+                        .credential(user.email, thePassword.value))
+                        .then(function () { // if so the password provided is correct
+                            document.getElementById(theChecker).innerHTML = "PASSWORD CORRECT"; // display validity
+                            document.getElementById(theChecker).style.color = "green";
+                            document.getElementById(submitButton).disabled = false; // enable submit button
+                        }).catch(function (error) { // if not the password is incorrect
+                    document.getElementById(theChecker).innerHTML = "PASSWORD INCORRECT"; // display invalidity
+                    document.getElementById(theChecker).style.color = "red";
+                    document.getElementById(submitButton).disabled = true; // disable submit button
+                });
+            }
+
+            function getCourses() { 
+                var query = firebase.database().ref("Courses/").orderByKey();
+                query.once("value").then(function (snapshot) {
+                    snapshot.forEach(function (childSnapshot) {
+                        var courseName = childSnapshot.key;
+                        coursesArray.push(courseName);
+                    });
+                });
+            }
+
+            // EXAMPLE OF WRITING TO FIREBASE
+            // DONT NEED BUT THIS IS TO WRITE TO FIREBASE
+            function writeUserData(i) {
+                firebase.database().ref('Courses/' + classes[i] + '/').set({
+                    Name: classes[i]
+                });
+            }
+            
+            // this function tests the validity of the new password
+            function testPassword(thePassword)
+            {
+                password = thePassword;
+                if (/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/.test(password)) // regular expression
+                {
+                    document.getElementById("isValid").innerHTML = "PASSWORD VALID";  // displays validity
+                    document.getElementById("isValid").style.color = "green";
+                    document.getElementById("submit").disabled = false; // enable submit
+                } else
+                {
+                    document.getElementById("isValid").innerHTML = "PASSWORD INVALID";  // displays invalidity
+                    document.getElementById("isValid").style.color = "red";
+                    document.getElementById("submit").disabled = true; // disable submit
+
+                }
+            }
+
+            // CHECK IF USER LOGGED IN, IF SO STORE UID
+            firebase.auth().onAuthStateChanged(function (user) {
+                if (user) { // if the user is logged in
+                    localStorage.setItem("UID", user.uid.toString());
+                    console.log(user);
+                    oldPass = document.getElementById("oldP"); // old password text box
+                    newPass = document.getElementById("newP"); // new password text box
+                    delPass = document.getElementById("pass"); // delete account password text box
+                    oldPass.addEventListener("focusout", function () { // on focus lost
+                        if (oldPass.value !== "") // if not empty
+                        {
+                            checkPassword(user, 0); // check the password 
+                        } else
+                        {
+                            document.getElementById("submit").disabled = true; // disable submit
+                        }
+                    });
+                    newPass.addEventListener("focusout", function () { // on focus lost
+                        if (newPass.value !== "") // if not empty
+                        {
+                            testPassword(newPass.value); // test the new password
+                        } else
+                        {
+                            document.getElementById("submit").disabled = true; // disable submit button
+                        }
+                    });
+                    delPass.addEventListener("focusout", function () { // on focus lost
+                        if (delPass.value !== "") // if not empty
+                        {
+                            checkPassword(user, 1); // check the password
+                        } else
+                        {
+                            document.getElementById("submit2").disabled = true; // disable submit button
+                        }
+                    });
+
+
+                    document.getElementById("submit").onclick = function () // on clicked
+                    {
+                        user.updatePassword(newPass.value).then(function () { // update the password
+                            document.getElementById("isValid").innerHTML = "Password Updated"; // display success
+                            document.getElementById("isValid").style.color = "green";
+                        }).catch(function (error) { // if error
+                            document.getElementById("isValid").innerHTML = "ERROR"; // display failure
+                            document.getElementById("isValid").style.color = "red";
+                        });
+                    };
+                    document.getElementById("submit2").onclick = function () // on  click
+                    {
+                        user.delete().then(function () { // delete the account
+                            alert("Account Deleted"); // display success
+                            firebase.auth().signOut().then(function () { // sign them out
+                        }).catch(function (error) {
+                            alert("ERROR cant sign out"); // display error
+                        });
+                        }).catch(function (error) {
+                            alert("ERROR account not deleted"); // display error
+                        });
+                        
+
+                    };
+
+                } else { // no user signed in
+                    window.location.replace("login.html"); // relocate
+                }
+            });
+
+        </script>
+
+    </body>
+</html>

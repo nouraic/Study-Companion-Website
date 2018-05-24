@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Course Overview</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/4.11.0/firebase.js"></script>
+  <script src="firebaseconfig.js"></script>
+  <script src="functions.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Heebo:100" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+</head>
+<body>
+
+    <!-- HEADER -->
+    <ul>
+      <li><a class="title">Study Companion</a></li>
+      <li style="float:right"><button class="logout" onclick="logout()">Logout</button></li>
+    </ul>
+
+    <div class="main">
+        <!-- LEFT SIDE NAV BAR -->
+        <div class="leftSideNav">
+            <p class="menu">TOOLS</p>
+            <button class="leftSideNavButtons" onclick="window.location.replace('index.html')">HOME</button>
+            <button class="active leftSideNavButtons" onclick="window.location.replace('courseOverview.html')">COURSE OVERVIEW</button>
+            <button class="leftSideNavButtons" onclick="window.location.replace('accountManagement.html')">MANAGE ACCOUNT</button>
+        </div>
+        
+        <!-- ADD CONTENT OF THIS PAGE HERE -->
+        <div class="rightSideContent">
+            <h1 id="MyCTitle"> My Courses </h1>
+            <button class="addCourseButton" onclick="window.location.replace('addCourse.html')">Add Course</button>
+            <br/>
+            <br/>
+            <div id="usersCoursesButtonsDiv">
+                <div class="loader"></div>
+                <h2>LOADING.....</h2>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        
+        // CHECKING IF LOGGED IN AND SETTING USERS UID IF LOGGED IN
+        firebase.auth().onAuthStateChanged(function(user) {
+          if (user) {
+              sessionStorage.setItem("UID", user.uid.toString());
+              sessionStorage.setItem("UserEmail", user.email);
+			  
+			  var uid = user.uid.toString();
+			  
+              // get users name
+			  firebase.database().ref('/users/' + uid +"/UserInfo").once('value').then(function(snapshot) {
+                  var username = (snapshot.val().Name);
+                  sessionStorage.setItem("UserName", username);
+			  });
+          } else {  // if not logged in go to login screen
+              window.location.replace("login.html");  
+          }
+        });
+        
+        var userCourses = new Array();                              // create array of users' courses
+        var currentUserUID = localStorage.getItem("UID");           // get user ID
+        
+        // display all courses
+        displayUserCourses();
+        
+        // DISPLAY ALL USERS' CLASSES AS BUTTONS
+        function displayUserCourses() {
+            var usersCoursesButtonsDiv = document.getElementById("usersCoursesButtonsDiv");
+            var drefGetUserCourses = firebase.database().ref('users/' + currentUserUID + '/courses');
+            usersCoursesButtonsDiv.innerHTML="";                                                        // clear div 
+            drefGetUserCourses.on('value', function(snapshot) {                                         
+                usersCoursesButtonsDiv.HTML = "";   
+                snapshot.forEach(function(childSnapshot) {                                              // for each class
+                    
+                    var courseButtonDiv = document.createElement('div');        // create a div for a button
+                    
+                    var courseButton = createElement('button',childSnapshot.val().CourseName);       // create button   
+                    courseButton.className = "courseButton";                    // set button's class for style
+                    courseButton.id=childSnapshot.val().CourseID;               // set button's id to COURSE ID
+                    courseButton.onclick = function () { goToCourse(this); };   // go to course
+                    
+                    courseButtonDiv.append(courseButton);
+                    usersCoursesButtonsDiv.append(courseButtonDiv);
+                    
+                });
+            });
+        }
+        
+        function goToCourse(button) {
+            sessionStorage.setItem("currentCourseID", button.id);               // set courseID
+            sessionStorage.setItem("currentCourseName", button.innerHTML);      // set courseName
+            
+            window.location.replace('courseForum.html');                // go to forum where you will retrieve the course selected
+        }
+        
+    </script>
+    
+</body>
+</html>

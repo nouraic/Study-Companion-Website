@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Study Companion</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/4.11.0/firebase.js"></script>
+    
+  <link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.css" rel="stylesheet"/>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.css" rel="stylesheet"/>
+
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+    
+    
+  <script src="firebaseconfig.js"></script>
+  <script src="functions.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Heebo:100" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Muli:200" rel="stylesheet">
+  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+  <link rel="stylesheet" href="style.css">
+        
+</head>
+<body>
+
+    <!-- HEADER -->
+    <ul>
+      <li><a class="title">Study Companion</a></li>
+      <li style="float:right"><button class="logout" onclick="logout()">Logout</button></li>
+    </ul>
+
+    <div class="main">
+        <!-- LEFT SIDE NAV BAR -->
+        <div class="leftSideNav">
+            <p class="menu">TOOLS</p>
+            <button class="leftSideNavButtons" onclick="window.location.replace('index.html')">HOME</button>
+            <button class="active leftSideNavButtons" onclick="window.location.replace('courseOverview.html')">COURSE OVERVIEW</button>
+            <button class="leftSideNavButtons" onclick="window.location.replace('accountManagement.html')">MANAGE ACCOUNT</button>
+        </div>
+        
+        <div class=tabs>
+            <button class="backButton" onclick="window.location.replace('courseOverview.html')">⬅</button>
+            <button class="tabButton" onclick="window.location.replace('courseForum.html')">Forum</button>
+            <button class="tabButton tabButtonActive" onclick="window.location.replace('courseStudyGroups.html')">Study Groups</button> 
+            <button class="tabButton" onclick="window.location.replace('courseClassmates.html')">Classmates Online</button>
+        </div>
+        
+        <!-- ADD CONTENT OF THIS PAGE HERE -->
+        <div class="rightSideContent">
+            
+            <h1 id="forumHeader"></h1>
+            <button id=createStudyGroup>Create Group</button>
+            <br/>
+            <br/>
+            <div id=studyGroupsDiv>
+                <div class="loader"></div>
+                <h2>LOADING.....</h2>
+            </div>
+            <br/>            
+            <!-- CREATE A STUDY GROUP SECTION -->
+            <!-- HIDDEN ON DEFAULT -->
+            <div id=createStudyGroupDiv>
+                <h1 id=createHeader>Create a Study Group</h1>
+                <input id=name type="text" placeholder="Group Name" class="box pad">
+                <br/>
+                <input id=location type="text" placeholder="Location" class="box pad">
+                <input type="text" name="date" id="date" class="form-control input-sm makesmall box" placeholder="Choose a date"required/>
+                <input type="text" name="time" id="time" class="form-control input-sm makesmall box" placeholder="Choose a time" required/>
+                <input id=weekly type="radio" name="occurance" value="Weekly" class=checkFont checked> Reoccure Weekly<br>
+                <input id=once type="radio" name="occurance" value="Once" class=checkFont> Meet Once<br>
+                <p id=error></p>
+                <button id=create class=createStudyGroupNavButton>Create</button>
+                <button id=cancel class=createStudyGroupNavButton>Cancel</button>
+            </div> 
+            
+        </div>
+    </div>
+    
+    <script>
+        
+        var studyGroupsArray = new Array();             // array holding each study group
+
+        var currentCourseName = sessionStorage.getItem("currentCourseName");
+        
+        var forumHeader = document.getElementById("forumHeader");
+        forumHeader.innerHTML = currentCourseName + "'s Study Groups";
+                
+        var prevName;                                   // used in editGroup function to save the old name that needs to be removed
+        
+        $("#createStudyGroupDiv").hide();               // hide creating study group input div
+                
+        // JQUERY 
+        $("#createStudyGroup").click(function() { 
+            $('[id="studyGroupsDiv"]').hide();          // hide study groups
+            $('[id="createStudyGroup"]').hide();        // hide create study group button
+            $('[id="createStudyGroupDiv"]').show();     // show new div looking for input
+            $('#date').datetimepicker({
+                format: 'M/D/YYYY'
+            });           // date picker
+            $('#time').datetimepicker({
+                format: 'LT'
+            });
+            // clear inputs
+            $('[id="location"]').val("");               
+            $('[id="name"]').val("");
+            $('[id="date"]').val("");
+            $('[id="time"]').val("");
+        }); // go to group creation
+        
+        $("#cancel").click(function() { 
+            $('[id="studyGroupsDiv"]').show();          // show study groups
+            $('[id="createStudyGroup"]').show();        // show create study group button
+            $('[id="createStudyGroupDiv"]').hide();     // hide new div looking for input
+        }); 
+        $("#create").click(function() {
+            var currentCourseID = sessionStorage.getItem("currentCourseID");
+            var dateTimeError = false;
+            var nameTaken = false;
+            
+            // PUT DATE AND TIME INTO CORRECT FORMATTING
+            try {
+                var time = $('#time').val();                                       // can be sent to firebase
+                if (time.length == 7) {
+                    time = "0" + time;
+                }          
+                var date = $('#date').val();
+                var dateTime = new Date(date + " " + time);
+                var currentDateTime = new Date();
+                var dateTimeMS = Date.parse(dateTime);
+                var currentDateTimeMS = Date.parse(currentDateTime);
+            } catch(error) { dateTimeError=true; }
+            
+            // CHECK IF THE NAME IS ALREADY TAKEN
+            try {
+                for(i=0;i<studyGroupsArray.length; i++) {
+                    if($('#name').val()==studyGroupsArray[i].name) {
+                        nameTaken = true;
+                        break;
+                    }
+                }
+            } catch(error) { }
+            
+            // ALL IF STATEMENTS ARE ERROR CHECKS
+            if($('#name').val()=="") { 
+                $('#error').html("Please input a name for a group");
+            }
+            else if($('#location').val()=="") { 
+                $('#error').html("Please input a location for a group");
+            }
+            else if(time=="") {
+                $('#error').html("Please input a time for the group");
+            }
+            else if(dateTimeError) { // if failed to parse at beginning means no date was entered
+                $('#error').html("Please input a date and time for the group to meet");
+            }
+            else if(dateTimeMS < currentDateTimeMS - 3600000) { // if date of group is an hour past the current time 
+                $('#error').html("Please input a valid date and time for the group to meet");
+            }
+            else if(nameTaken && ($('#create').text().trim() != "Save Changes")) {  // if name was taken and not in edit mode
+                $('#error').html("That study group name has already been taken, please pick another one");
+            }
+            else {
+                try {
+                    // IF IN EDIT MODE
+                    if($('#create').text().trim() == "Save Changes") {
+                        firebase.database().ref().child('Courses/'+currentCourseID+'/Study Groups/'+prevName).remove(); // delete old group
+                    }
+                    // recreate/create group into firebase
+                    var reoccurRadioValue = $('input[name=occurance]:checked').val();
+                    firebase.database().ref('Courses/'+currentCourseID+'/Study Groups/'+$('#name').val()+'/').set({
+                        name: $('#name').val(),
+                        location: $('#location').val(),
+                        date: date,
+                        time: time,
+                        reoccur: reoccurRadioValue,
+                        owner: sessionStorage.getItem("UserEmail")
+                    });
+                } catch(error) { $('#error').html("There was an error creating the group, please check your internet connection"); }
+                $('[id="studyGroupsDiv"]').show();          // show study groups
+                $('[id="createStudyGroup"]').show();        // show create study group button
+                $('[id="createStudyGroupDiv"]').hide();     // hide new div looking for input
+            }
+        })          
+                
+        displayStudyGroups();                               // display study groups
+        
+        // DISPLAY ALL THE STUDY GROUPS
+        function displayStudyGroups() {
+            var currentCourseID = sessionStorage.getItem("currentCourseID");
+            var studyGroupsDiv = document.getElementById("studyGroupsDiv");
+            studyGroupsDiv.innerHTML = " ";
+            var drefGetStudyGroups = firebase.database().ref('/Courses/' + currentCourseID + '/Study Groups/');
+            
+            // AJAX 
+            drefGetStudyGroups.on('value', function(snapshot) {
+                studyGroupsDiv.innerHTML = "";                      // clear the list before updating again
+                studyGroupsArray = [];                              // clear array of groups before updating again
+                var arrayIndex = 0;
+                snapshot.forEach(function(childSnapshot) {
+                    var studyGroupObj = new Object();                                   // create object
+                    studyGroupObj.name = childSnapshot.val().name;                      // object name
+                    studyGroupObj.location = childSnapshot.val().location;              // object location
+                    studyGroupObj.date = childSnapshot.val().date;                      // object date
+                    studyGroupObj.time = childSnapshot.val().time;                      // object time
+                    studyGroupObj.reoccur = childSnapshot.val().reoccur;                // object occurance
+                    studyGroupsArray.push(studyGroupObj);                               // put object into array
+                    var studyGroupDiv = document.createElement('div');                  // create a div for a button
+                    studyGroupDiv.append(createElement('h1', childSnapshot.val().name));                     // name
+                    studyGroupDiv.append(createElement('h2', "Date: " + childSnapshot.val().date));          // date
+                    studyGroupDiv.append(createElement('h2', "Time: " + childSnapshot.val().time));          // time
+                    studyGroupDiv.append(createElement('h2', "Location: " + childSnapshot.val().location));  // location
+                    studyGroupDiv.append(createElement('h2', "Occurance: " + childSnapshot.val().reoccur));  // occurance
+                    if(childSnapshot.val().owner == sessionStorage.getItem("UserEmail")) {          // if user is the owner
+                        var deleteButton = createElement('button', "Delete");                       // show delete button
+                        var editButton = createElement('button', "Edit");                           // show edit button
+                        deleteButton.id=arrayIndex;                                         // make id the index of group
+                        deleteButton.className="sgButton";                                         
+                        editButton.id=arrayIndex;                                           // make id the index of group
+                        editButton.className="sgButton";                                         
+                        deleteButton.onclick = function () { deleteGroup(this) };           
+                        editButton.onclick = function () { editGroup(this) };
+                        studyGroupDiv.append(deleteButton);                                 // delete button
+                        studyGroupDiv.append(editButton);                                   // edit button
+                    } 
+                    studyGroupsDiv.append(studyGroupDiv);                   // append study group div to study groups div
+                    studyGroupDiv.className = "studyGroupDiv";
+                    //studyGroupsDiv.append(studyGroupDiv);                   // append study group div to study groups div
+                    studyGroupsDiv.append(document.createElement("BR"));
+                    studyGroupsDiv.append(document.createElement("BR"))
+                    arrayIndex++;
+                });
+            });
+        }
+        
+        // DELETE STUDY GROUP
+        function deleteGroup(button) {
+            var currentCourseID = sessionStorage.getItem("currentCourseID");              // confirm message
+            if(confirm("Are you sure you want to delete " + studyGroupsArray[button.id].name + "?")) {
+                firebase.database().ref().child('Courses/'+currentCourseID+'/Study Groups/'+studyGroupsArray[button.id].name).remove();
+            }
+        }
+        
+        // EDIT STUDY GROUP
+        function editGroup(button) {
+            prevName = studyGroupsArray[button.id].name;
+            $('[id="studyGroupsDiv"]').hide();          // hide study groups
+            $('[id="createStudyGroup"]').hide();        // hide create study group button
+            $('[id="createStudyGroupDiv"]').show();     // show new div looking for input
+            $('#name').val(studyGroupsArray[button.id].name);           // get name
+            $('#location').val(studyGroupsArray[button.id].location);   // get location 
+            $('#time').val(studyGroupsArray[button.id].time);           // get time
+            $('#date').val(studyGroupsArray[button.id].date);           // get date
+            if(studyGroupsArray[button.id].reoccur == "Weekly") {       // if weekly
+                $("#weekly").prop("checked", true);                     // check weekly 
+            }
+            else {
+                $("#once").prop("checked", true);                       // otherwise check once
+            }
+            $("#create").html("Save Changes");                          // change button text from create to save changes
+            
+        }
+        
+        // CONVERT DATE (dd-mm-yyyy) TO STRING
+        // https://stackoverflow.com/questions/13459866/javascript-change-date-into-format-of-dd-mm-yyyy
+        function formattedDate(d = new Date) {
+          let month = String(d.getMonth() + 1);
+          let day = String(d.getDate());
+          const year = String(d.getFullYear());
+
+          return month + '/' + day + '/' + year;
+        }
+        
+    </script>
+        
+</body>
+</html>

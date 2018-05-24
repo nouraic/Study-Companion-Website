@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Study Companion</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/4.11.0/firebase.js"></script>
+  <script src="firebaseconfig.js"></script>
+  <script src="functions.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Heebo:100" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+</head>
+<body>
+
+    <!-- HEADER -->
+    <div>
+    <ul>
+      <li><a class="title">Study Companion</a></li>
+      <li style="float:right"><button class="logout" onclick="logout()">Logout</button></li>
+    </ul>
+    
+    <div class="main"> 
+        <!-- LEFT SIDE NAV BAR -->
+        <div class="leftSideNav">
+            <p class="menu">TOOLS</p>
+            <button class="leftSideNavButtons" onclick="window.location.replace('index.html')">HOME</button>
+            <button class="active leftSideNavButtons" onclick="window.location.replace('courseOverview.html')">COURSE OVERVIEW</button>
+            <button class="leftSideNavButtons" onclick="window.location.replace('accountManagement.html')">MANAGE ACCOUNT</button>
+        </div>
+        
+        <div class=tabs>
+            <button class="backButton" onclick="window.location.replace('courseOverview.html')">⬅</button>
+        </div>
+                
+        <!-- ADD CONTENT OF THIS PAGE HERE -->
+        <div class="rightSideContent" id="addCC">
+            <input id=searchbar type=text placeholder="Search...">
+            <button class="searchButton" onclick="viewSearchedCourses()">Search</button>
+            <br/>
+            <br/>
+            <div id=classmatesDiv></div>
+        </div>
+    </div>
+    </div> 
+    
+    
+    <script>
+        
+        viewAllCourses();
+        
+        function viewAllCourses()  {
+            coursesArray = []; 
+            
+            var classmatesDiv = document.getElementById("classmatesDiv");
+            
+            var query = firebase.database().ref("Courses/").orderByKey();       // get all children under courses
+            
+            query.once("value").then(function(snapshot) {           
+                snapshot.forEach(function(childSnapshot) {                      // for each course
+                    var courseObj = new Object();                               // create course object
+                    courseObj.ID = childSnapshot.val().ID;                      // get course id and create course object id
+                    courseObj.Name = childSnapshot.val().Name;                  // get course name and create course object name
+                    coursesArray.push(courseObj);                               // add course object to array
+                });
+                classmatesDiv.innerHTML=""; 
+                for(i=0; i<coursesArray.length;i++) {                           // for each course
+                    showCourse();
+                }            
+            });
+        }
+        
+        function viewSearchedCourses() {
+            //found == false;                                                 // default: course not found
+            var classmatesDiv = document.getElementById("classmatesDiv");
+            var courseSearched = searchbar.value;                               
+            coursesArray = [];                                              // clear courses array
+            var query = firebase.database().ref("Courses/").orderByKey();   // get all children under courses
+            query.once("value").then(function(snapshot) {                   
+                snapshot.forEach(function(childSnapshot) {                  // for each course
+                    var courseObj = new Object();                           // create course object
+                    courseObj.ID = childSnapshot.val().ID;                  // get id and create course object id
+                    courseObj.Name = childSnapshot.val().Name;              // get name and create course object name
+                    coursesArray.push(courseObj);                           // put course object into array
+                });
+                if(courseSearched == "") {                                  // if there is nothing in the course search bar
+                    classmatesDiv.innerHTML = "";                              // clear courses shown
+                    viewAllCourses();                                       // reshow all courses
+                }
+                else {
+                    classmatesDiv.innerHTML="";                             // clear courses shown to prepare to show searched 
+                    var searchIndex = 0;  
+                    // LOOP THROUGH COURSES TO FIND COURSES THAT MATCH WHAT THE USER SEARCHED
+                    for(i=0; i<coursesArray.length;i++) {
+                        if((courseSearched == coursesArray[i].ID) || (courseSearched == coursesArray[i].Name)) {
+                            showCourse();                                   // show course
+                        }
+                    }
+                }            
+            });
+        }
+        
+        // when the add course button is clicked 
+        function addCourse(button) {
+            // set in firebase
+            firebase.database().ref('users/'+sessionStorage.getItem("UID")+'/courses/'+coursesArray[button.id].ID+'/').set({
+                    CourseID: coursesArray[button.id].ID,
+                    CourseName: coursesArray[button.id].Name
+            });
+            alert(coursesArray[button.id].ID + " " + coursesArray[button.id].Name + " was added to your list of courses");  // alert
+            document.getElementById("searchbar").value="";          // clear the search bar
+            viewAllCourses();                                       // view all the courses
+        }
+        
+        // display course
+        function showCourse() {
+            var singleClassmateDiv = createElement('div'," ");                  // create div
+            singleClassmateDiv.id = "singleClassmateDiv";
+
+            var nameDiv = createElement('div',"");                              // create div
+            nameDiv.className="nameDiv";
+            var classmateName = createElement('h7',coursesArray[i].Name);       // show name
+            classmateName.className="classmateName";
+            nameDiv.append(classmateName);
+
+            var classmateEmail = createElement('h9',coursesArray[i].ID);        // show id
+            classmateEmail.className="classmateEmail";
+
+            var emailButton = createElement('button',"ADD");                    // show button
+            emailButton.id=i;
+            emailButton.className = "emailButton";
+            emailButton.onclick = function () { addCourse(this) };              // add function for onclick
+
+            singleClassmateDiv.append(nameDiv);
+            singleClassmateDiv.append(emailButton);
+            singleClassmateDiv.append(classmateEmail);
+            classmatesDiv.append(singleClassmateDiv);
+        }
+        
+    </script>
+    
+</body>
+</html>

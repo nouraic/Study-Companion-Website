@@ -1,0 +1,150 @@
+<!doctype html>
+<!-- 
+This document holds the account creation functionality of the website. Here a user can enter their email, name, 
+and chosen password into the appropriate text boxes and if the email and password valid date they will have an account 
+created for them and a have a verification email sent to their email address.
+-->
+<html>
+    <head>
+        <title>Study Companion Create an Account</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/4.11.0/firebase.js"></script>
+        <script src="firebaseconfig.js"></script>
+        <script src="functions.js"></script>
+        <link rel="stylesheet" href="style.css">
+
+        <link href="https://fonts.googleapis.com/css?family=Heebo:100" rel="stylesheet">
+
+    </head>
+
+    <body>
+        <div class="accountCreater"><!-- holds the content of the page -->
+            <h1>Create Account</h1>
+            <a id="link" href=login.html>Login</a> <!-- link to login page -->
+            <br>
+            <br>
+            <input type="text" id="email" name="email" placeholder="Email"> <br> (Must Be A Merrimack Email) <!-- enter email -->
+            <br>
+            <br>
+            <input type="text" id="name" name="name" placeholder="Name"> <!-- enter name -->
+            <br>
+            <br>
+            <input type="password" id="password" name="password" placeholder="Password(Then Tab)"> <br> (5 Characters & A Number) <!-- enter password -->
+            <br>
+            <br>
+            <button id="submit" disabled>Submit</button> <!-- submit button -->
+            <div class="checker" id="isValid"></div> <!-- display if valid -->
+        </div>    
+        <script>
+            var database = firebase.database(); // database reference
+            var emailValid = false; // if valid
+            var passwordValid = false; // if valid 
+            var email = ""; // hold email input
+            var password = ""; // hold password input
+            var user = null; // user reference
+            document.body.style.backgroundColor = "dodgerBlue"; // set background color
+            document.getElementById("link").style.color = "white"; // set text color
+            document.getElementById("isValid").style.fontWeight = "bold";
+
+            // function to test the validity of the email input
+            function testEmail(theEmail)
+            {
+                email = theEmail;
+                if (/^[A-Za-z]+((@Merrimack.edu)|(@merrimack.edu))$/.test(email)) // regular expression
+                {
+                    document.getElementById("isValid").innerHTML = "EMAIL VALID";  // displays email valid
+                    emailValid = true; // email is valid
+                    if (passwordValid) // if password is valid too
+                    {
+                        document.getElementById("submit").disabled = false; // enable submit button
+                    }
+                } else
+                {
+                    document.getElementById("isValid").innerHTML = "EMAIL INVALID";  // displays email invalid
+                    emailValid = false;
+                    document.getElementById("submit").disabled = true; // disbale submit button
+
+                }
+            }
+            
+            // function to test the validity of the password input
+            function testPassword(thePassword)
+            {
+                password = thePassword;
+                if (/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/.test(password)) // regular expression
+                {
+                    document.getElementById("isValid").innerHTML = "PASSWORD VALID";  // displays password valid
+                    passwordValid = true; // password valid
+                    if (emailValid) // if email valid too
+                    {
+                        document.getElementById("submit").disabled = false; // enable submit button
+                    }
+                } else
+                {
+                    document.getElementById("isValid").innerHTML = "PASSWORD INVALID";  // displayS password invalid
+                    passwordValid = false; // password invalid
+                    document.getElementById("submit").disabled = true; // disable submit button
+
+                }
+            }
+            
+            // this function actually creates the users account using their input
+            function signUp()
+            {
+
+                firebase.auth().createUserWithEmailAndPassword(email, password).then(function () {
+                    user = firebase.auth().currentUser; // get user
+                    firebase.database().ref('users/' + user.uid + '/UserInfo/').set({ // set their info
+                        Email: emailTag.value,
+                        Name: nameTag.value
+                    });
+                    user.sendEmailVerification().then(function () { // send email verification
+                    }).catch(function (error) {
+                        alert("Error, email not sent");
+                    });
+                }).catch(function (error) {
+
+                });
+            }
+
+            emailTag = document.getElementById("email"); // email text box
+            passwordTag = document.getElementById("password"); // password text box
+            nameTag = document.getElementById("name"); // name text box
+
+            emailTag.addEventListener("focusout", function () { // on focus lost
+                if (emailTag.value !== "") // if not empty
+                {
+                    testEmail(emailTag.value); // test email validity
+                } else if (emailTag.value === "" || passwordTag.value === "") // if either empty
+                {
+                    document.getElementById("submit").disabled = true; // disable submit button
+                }
+            });
+            passwordTag.addEventListener("focusout", function () { // on focus lost
+                if (passwordTag.value !== "") // if not empty
+                {
+                    testPassword(passwordTag.value); // test password validity
+                } else if (emailTag.value === "" || passwordTag.value === "") // if either empty
+                {
+                    document.getElementById("submit").disabled = true; // disable submit button
+                }
+
+            });
+            document.getElementById("submit").onclick = function () // on click
+            { 
+                signUp(); // call signup
+                document.getElementById("isValid").innerHTML = "Account Created, Return to Login Screen to Login";  // displays success
+                document.getElementById("isValid").style.fontWeight = "bold";
+
+
+            };
+
+
+        </script>
+    </body>
+
+
+
+</html>
